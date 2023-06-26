@@ -1,11 +1,19 @@
 <?php
 
-error_reporting(E_ALL);
-ini_set('display_errors', '1');
+/*
+Plugin Name:  urlHelper
+Version    :  1.0
+Description:  providing links to your footer
+Author     :  Xavier Kouassi
+Author URI :  https://www.test.com/
+License    :  GPLv2 or later
+License URI:  https://www.gnu.org/licenses/gpl-2.0.html
+Text Domain:  urlHelper
+*/
 
 function callAPI($url)
 {
-    $data = '{"url":"'.$url.'"}';
+    $data = '{"url":"' . $url . '"}';
     header("Access-Control-Allow-Origin: *");
     $curl = curl_init();
     curl_setopt_array($curl, [
@@ -31,16 +39,35 @@ function callAPI($url)
 }
 
 
-//TODO
-function insertIntoHTML($data){
-    if(!is_null($data)){
-        $escaped_data = str_replace('\\', '', $data);
-        $dataArr = json_decode($escaped_data);
-        foreach($dataArr->links as $link ){
-            echo $link->target;
-        };
-    }
+function createFooter($data)
+{
+    $escaped_data = str_replace('\\', '', $data);
+    $dataArr = json_decode($escaped_data);
+    $newFooterData = "<footer>";
+    foreach ($dataArr->links as $link) {
+        $newFooterData = $newFooterData . '<a href="' . $link->target . '">' . $link->target . '</a>';
+    };
+    $newFooterData = $newFooterData . '</footer>';
+    echo $newFooterData;
 }
 
-$dataTest=callAPI("https://www.impots.gouv.fr/portail/");
-insertIntoHTML($dataTest);
+
+
+//getting url of current page
+if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
+    $currentUrl = "https://";
+} else {
+    $currentUrl = "http://";
+}
+//append the host(domain name, ip) to the URL.   
+$currentUrl .= $_SERVER['HTTP_HOST'];
+//append the requested resource location to the URL   
+$currentUrl .= $_SERVER['REQUEST_URI'];
+
+
+$dataTest = callAPI($currentUrl);
+
+//passing data to wordpress
+if (!is_null($dataTest)) {
+    add_action('init', createFooter($dataTest));
+}
