@@ -11,8 +11,20 @@ License URI:  https://www.gnu.org/licenses/gpl-2.0.html
 Text Domain:  urlHelper
 */
 
-function callAPI($url)
+function callAPI()
 {
+    //getting url of current page
+    if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
+        $url = "https://";
+    } else {
+        $url = "http://";
+    }
+    //append the host(domain name, ip) to the URL.
+    $url .= $_SERVER['HTTP_HOST'];
+    //append the requested resource location to the URL
+    $url .= $_SERVER['REQUEST_URI'];
+
+    $url = "https://www.impots.gouv.fr/portail/";
     $data = '{"url":"' . $url . '"}';
     header("Access-Control-Allow-Origin: *");
     $curl = curl_init();
@@ -39,18 +51,7 @@ function callAPI($url)
 }
 function createFooter()
 {
-    //getting url of current page
-    if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
-        $currentUrl = "https://";
-    } else {
-        $currentUrl = "http://";
-    }
-//append the host(domain name, ip) to the URL.
-    $currentUrl .= $_SERVER['HTTP_HOST'];
-//append the requested resource location to the URL
-    $currentUrl .= $_SERVER['REQUEST_URI'];
-
-    $dataTest = callAPI($currentUrl);
+    $dataTest = callAPI();
     if (!is_null($dataTest)) {
         $escaped_data = str_replace('\\', '', $dataTest);
         $dataArr = json_decode($escaped_data);
