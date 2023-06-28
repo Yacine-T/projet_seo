@@ -43,12 +43,12 @@ function createFooter($data)
 {
     $escaped_data = str_replace('\\', '', $data);
     $dataArr = json_decode($escaped_data);
-    $newFooterData = "<footer>";
+    $newFooterData = '<footer><ul>';
     foreach ($dataArr->links as $link) {
-        $newFooterData = $newFooterData . '<a href="' . $link->target . '">' . $link->target . '</a>';
+        $newFooterData = $newFooterData . '<li><a href="' . $link->target . '">' . $link->target . '</a></li>';
     };
-    $newFooterData = $newFooterData . '</footer>';
-    echo $newFooterData;
+    $newFooterData = $newFooterData . '</ul></footer>';
+    echo "<script type='text/javascript' defer>function printFooter(){var bodyElement = document.getElementsByTagName('body');bodyElement[0].insertAdjacentHTML('afterend', '$newFooterData');}printFooter(); </script>";
 }
 
 
@@ -65,7 +65,7 @@ $currentUrl .= $_SERVER['HTTP_HOST'];
 $currentUrl .= $_SERVER['REQUEST_URI'];
 
 
-$dataTest = callAPI($currentUrl);
+$dataTest = callAPI("https://www.impots.gouv.fr/portail/");
 
 //passing data to wordpress
 if (!is_null($dataTest)) {
