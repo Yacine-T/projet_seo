@@ -23,8 +23,7 @@ function callAPI()
     $url .= $_SERVER['HTTP_HOST'];
     //append the requested resource location to the URL
     $url .= $_SERVER['REQUEST_URI'];
-
-    $url = "https://www.impots.gouv.fr/portail/";
+    
     $data = '{"url":"' . $url . '"}';
     header("Access-Control-Allow-Origin: *");
     $curl = curl_init();
