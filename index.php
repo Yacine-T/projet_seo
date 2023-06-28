@@ -37,37 +37,38 @@ function callAPI($url)
         return $response;
     }
 }
-
-
-function createFooter($data)
+function createFooter()
 {
-    $escaped_data = str_replace('\\', '', $data);
-    $dataArr = json_decode($escaped_data);
-    $newFooterData = '<footer><ul>';
-    foreach ($dataArr->links as $link) {
-        $newFooterData = $newFooterData . '<li><a href="' . $link->target . '">' . $link->target . '</a></li>';
-    };
-    $newFooterData = $newFooterData . '</ul></footer>';
-    echo "<script type='text/javascript' defer>function printFooter(){var bodyElement = document.getElementsByTagName('body');bodyElement[0].insertAdjacentHTML('afterend', '$newFooterData');}printFooter(); </script>";
+    //getting url of current page
+    if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
+        $currentUrl = "https://";
+    } else {
+        $currentUrl = "http://";
+    }
+//append the host(domain name, ip) to the URL.
+    $currentUrl .= $_SERVER['HTTP_HOST'];
+//append the requested resource location to the URL
+    $currentUrl .= $_SERVER['REQUEST_URI'];
+
+    $dataTest = callAPI($currentUrl);
+    if (!is_null($dataTest)) {
+        $escaped_data = str_replace('\\', '', $dataTest);
+        $dataArr = json_decode($escaped_data);
+        $newFooterData = '<footer><ul>';
+        foreach ($dataArr->links as $link) {
+            $newFooterData = $newFooterData . '<li><a href="' . $link->target . '">' . $link->target . '</a></li>';
+        };
+        $newFooterData = $newFooterData . '</ul></footer>';
+        echo "<script>
+        function printFooter()
+        {
+            window.addEventListener('DOMContentLoaded', () => {
+                 let bodyElement = document.getElementsByTagName('body');bodyElement[0].insertAdjacentHTML('afterend', '" . $newFooterData . "');
+            })
+        }
+        printFooter();
+        </script>";
+    }
 }
-
-
-
-//getting url of current page
-if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
-    $currentUrl = "https://";
-} else {
-    $currentUrl = "http://";
-}
-//append the host(domain name, ip) to the URL.   
-$currentUrl .= $_SERVER['HTTP_HOST'];
-//append the requested resource location to the URL   
-$currentUrl .= $_SERVER['REQUEST_URI'];
-
-
-$dataTest = callAPI("https://www.impots.gouv.fr/portail/");
-
 //passing data to wordpress
-if (!is_null($dataTest)) {
-    add_action('init', createFooter($dataTest));
-}
+add_action('init', 'createFooter');
